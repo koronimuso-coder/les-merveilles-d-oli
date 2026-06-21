@@ -1,0 +1,7 @@
+# Robots.txt for Les Merveilles d'Oli
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /kitchen
+
+Sitemap: https://lesmerveillesdoli.com/sitemap.xml

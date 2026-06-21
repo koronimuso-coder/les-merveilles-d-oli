@@ -1,0 +1,288 @@
+/* DESIGN SYSTEM - LES MERVEILLES D'OLI */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Harmonious Afro-Contemporary Color Palette (HSL) */
+  --color-ivory: #FAF6F0;
+  --color-cream: #F5EFE6;
+  --color-cacao: #2C1A11;
+  --color-terracotta: #C85C32;
+  --color-copper: #D38B5D;
+  --color-bordeaux: #5C1D24;
+  --color-forest: #1E2F23;
+  --color-charcoal: #121212;
+  --color-gold: #D4AF37;
+  --color-safran: #F4C430;
+  
+  /* Text and semantic mappings */
+  --bg-primary: var(--color-ivory);
+  --bg-secondary: var(--color-cream);
+  --bg-dark: var(--color-cacao);
+  --text-primary: var(--color-cacao);
+  --text-secondary: #5a4b41;
+  --text-light: var(--color-ivory);
+  
+  /* Typography */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Outfit', sans-serif;
+  
+  /* Transitions */
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: all 0.2s ease-out;
+
+  /* Custom Cursor size */
+  --cursor-size: 20px;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  cursor: none; /* Hide default cursor for custom cursor on desktop */
+}
+
+@media (max-width: 1024px) {
+  * {
+    cursor: auto; /* Fallback for touch devices */
+  }
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessibility & Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Headings & Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+p {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+/* Scroll Storytelling Styles */
+.dark-theme {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.light-theme {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Dynamic design layout utilities */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-terracotta);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bordeaux);
+}
+
+/* Button & Link Animations */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.btn-primary {
+  background-color: var(--color-terracotta);
+  color: var(--color-ivory);
+  box-shadow: 0 4px 15px rgba(200, 92, 50, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-bordeaux);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(92, 29, 36, 0.3);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--color-terracotta);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-terracotta);
+  color: var(--color-ivory);
+  transform: translateY(-2px);
+}
+
+.btn-dark {
+  background-color: var(--color-cacao);
+  color: var(--color-ivory);
+}
+
+.btn-dark:hover {
+  background-color: var(--color-terracotta);
+  transform: translateY(-2px);
+}
+
+/* Subtle African Patterns as backdrops */
+.pattern-overlay {
+  position: relative;
+}
+
+.pattern-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 0h30v30H0zm30 30h30v30H30zM0 30h30v30H0zm30-30h30v30H30z' fill='%232c1a11' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Custom Curser Markup */
+.custom-cursor {
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  border: 2px solid var(--color-terracotta);
+  background-color: transparent;
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor.hovered {
+  width: calc(var(--cursor-size) * 2.5);
+  height: calc(var(--cursor-size) * 2.5);
+  background-color: rgba(200, 92, 50, 0.3);
+  border-color: var(--color-safran);
+  content: 'Voir';
+}
+
+.custom-cursor.drag {
+  width: calc(var(--cursor-size) * 3);
+  height: calc(var(--cursor-size) * 3);
+  background-color: rgba(212, 175, 55, 0.2);
+  border-color: var(--color-gold);
+}
+
+/* Glassmorphism Navigation */
+.nav-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  z-index: 1000;
+  transition: var(--transition-smooth);
+}
+
+.nav-header.scrolled {
+  background: rgba(250, 246, 240, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  height: 70px;
+}
+
+/* Grid layout for catalog cards */
+.grid-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* Product Card depth styling */
+.product-card {
+  background: var(--bg-secondary);
+  border-radius: 24px;
+  padding: 1.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(44, 26, 17, 0.03);
+  transition: var(--transition-bounce);
+  border: 1px solid rgba(44, 26, 17, 0.05);
+}
+
+.product-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(44, 26, 17, 0.08);
+  border-color: rgba(200, 92, 50, 0.2);
+}
+
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 16px;
+  transition: var(--transition-smooth);
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
