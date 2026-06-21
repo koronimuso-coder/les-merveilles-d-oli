@@ -6,6 +6,55 @@ import { getCategories, getProducts } from '../services/db';
 import { Flame, Star, ShoppingBag, Eye, Info, Check, Filter } from 'lucide-react';
 import SauceReveal from '../components/SauceReveal';
 
+const PAIRING_DATA = {
+  ndole: {
+    drinkId: 'jus_bissap',
+    nameFr: "Bissap Royal Infusé",
+    nameEn: "Royal Brewed Bissap",
+    descFr: "L'acidité naturelle des fleurs d'hibiscus équilibre magnifiquement la richesse de l'arachide du Ndolé.",
+    descEn: "The natural acidity of hibiscus flowers beautifully balances the rich peanut sauce of the Ndole.",
+    price: 4.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=150&q=80'
+  },
+  poulet_yassa: {
+    drinkId: 'jus_bissap',
+    nameFr: "Bissap Royal Infusé",
+    nameEn: "Royal Brewed Bissap",
+    descFr: "La douceur mentholée de notre boisson à l'hibiscus vient tempérer la force de la marinade au citron et à la moutarde.",
+    descEn: "The minty sweetness of our hibiscus drink tones down the sharpness of the lemon and mustard marinade.",
+    price: 4.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=150&q=80'
+  },
+  mafe: {
+    drinkId: 'jus_bissap',
+    nameFr: "Bissap Royal Infusé",
+    nameEn: "Royal Brewed Bissap",
+    descFr: "La fraîcheur acidulée du Bissap coupe le gras de la sauce au beurre de cacahuète pour un parfait équilibre.",
+    descEn: "The tangy freshness of Bissap cuts through the richness of the peanut butter sauce for a perfect balance.",
+    price: 4.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=150&q=80'
+  },
+  pastels: {
+    drinkId: 'jus_bissap',
+    nameFr: "Bissap Royal Infusé",
+    nameEn: "Royal Brewed Bissap",
+    descFr: "Pour accompagner les beignets au thon croustillants, rien ne vaut notre boisson emblématique.",
+    descEn: "To accompany the crispy tuna pastels, nothing beats our iconic beverage.",
+    price: 4.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=150&q=80'
+  }
+};
+
+const FLAVOR_PROFILES = {
+  ndole: { spicy: 1, umami: 5, sweet: 1, tangy: 1, herby: 5 },
+  poulet_yassa: { spicy: 2, umami: 4, sweet: 2, tangy: 5, herby: 2 },
+  mafe: { spicy: 2, umami: 5, sweet: 3, tangy: 1, herby: 1 },
+  pastels: { spicy: 3, umami: 4, sweet: 1, tangy: 2, herby: 3 },
+  alloco: { spicy: 0, umami: 1, sweet: 5, tangy: 1, herby: 0 },
+  jus_bissap: { spicy: 0, umami: 0, sweet: 4, tangy: 4, herby: 3 },
+  feast_family_4: { spicy: 2, umami: 4, sweet: 2, tangy: 3, herby: 3 }
+};
+
 const Menu = () => {
   const { language, t } = useApp();
   const { addToCart } = useCart();
@@ -15,6 +64,9 @@ const Menu = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Interactive details state (wine/beer pairing or flavor signature)
+  const [activeDetails, setActiveDetails] = useState({}); // { [productId]: 'pairing' | 'profile' | null }
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -30,6 +82,7 @@ const Menu = () => {
 
   // Transition State
   const [sauceTrigger, setSauceTrigger] = useState(false);
+
 
   useEffect(() => {
     // Check search params first
@@ -406,6 +459,182 @@ const Menu = () => {
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', height: '50px', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.4rem' }}>
                           {t(prod.descriptionFr, prod.descriptionEn)}
                         </p>
+
+                        {/* Interactive Toggles for Pairing & Flavor Profile */}
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem', borderBottom: '1px solid rgba(44,26,11,0.05)', paddingBottom: '0.8rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveDetails(prev => ({
+                                ...prev,
+                                [prod.id]: prev[prod.id] === 'pairing' ? null : 'pairing'
+                              }));
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '0.4rem',
+                              fontSize: '0.72rem',
+                              fontWeight: '600',
+                              borderRadius: '8px',
+                              border: '1px solid rgba(200,92,50,0.1)',
+                              backgroundColor: activeDetails[prod.id] === 'pairing' ? 'rgba(200,92,50,0.08)' : 'transparent',
+                              color: activeDetails[prod.id] === 'pairing' ? 'var(--color-terracotta)' : 'var(--text-secondary)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            🍷 {t("Accord", "Pairing")}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveDetails(prev => ({
+                                ...prev,
+                                [prod.id]: prev[prod.id] === 'profile' ? null : 'profile'
+                              }));
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '0.4rem',
+                              fontSize: '0.72rem',
+                              fontWeight: '600',
+                              borderRadius: '8px',
+                              border: '1px solid rgba(200,92,50,0.1)',
+                              backgroundColor: activeDetails[prod.id] === 'profile' ? 'rgba(200,92,50,0.08)' : 'transparent',
+                              color: activeDetails[prod.id] === 'profile' ? 'var(--color-terracotta)' : 'var(--text-secondary)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            📊 {t("Saveurs", "Flavors")}
+                          </button>
+                        </div>
+
+                        {/* Collapsible content area */}
+                        {activeDetails[prod.id] === 'pairing' && (
+                          <div style={{
+                            marginTop: '0.8rem',
+                            padding: '0.8rem',
+                            backgroundColor: 'rgba(200,92,50,0.04)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(200,92,50,0.08)',
+                            fontSize: '0.8rem',
+                            animation: 'fade-in 0.3s ease'
+                          }}>
+                            {PAIRING_DATA[prod.id] ? (
+                              <div>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                  <img 
+                                    src={PAIRING_DATA[prod.id].image} 
+                                    alt={PAIRING_DATA[prod.id].nameFr} 
+                                    style={{ width: '35px', height: '35px', objectFit: 'cover', borderRadius: '6px' }}
+                                  />
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontSize: '0.75rem' }}>
+                                      {t(PAIRING_DATA[prod.id].nameFr, PAIRING_DATA[prod.id].nameEn)}
+                                    </div>
+                                    <div style={{ color: 'var(--color-terracotta)', fontWeight: 'bold', fontSize: '0.75rem' }}>
+                                      {PAIRING_DATA[prod.id].price.toFixed(2)} $
+                                    </div>
+                                  </div>
+                                </div>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', lineHeight: '1.4', marginBottom: '0.5rem' }}>
+                                  {t(PAIRING_DATA[prod.id].descFr, PAIRING_DATA[prod.id].descEn)}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const p = PAIRING_DATA[prod.id];
+                                    addToCart({
+                                      id: p.drinkId,
+                                      nameFr: p.nameFr,
+                                      nameEn: p.nameEn,
+                                      price: p.price,
+                                      category: 'boissons',
+                                      image: p.image
+                                    }, 1);
+                                    const event = new CustomEvent('toast-alert', {
+                                      detail: { 
+                                        msgFr: `${p.nameFr} ajouté !`,
+                                        msgEn: `${p.nameEn} added!`
+                                      }
+                                    });
+                                    window.dispatchEvent(event);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '0.4rem',
+                                    backgroundColor: 'var(--color-terracotta)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.7rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  ➕ {t("Associer", "Pair beverage")}
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.7rem' }}>
+                                {t("Nous recommandons notre Bissap frais avec ce plat.", "We recommend our fresh Bissap with this dish.")}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {activeDetails[prod.id] === 'profile' && (
+                          <div style={{
+                            marginTop: '0.8rem',
+                            padding: '0.8rem',
+                            backgroundColor: 'rgba(44,26,11,0.04)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(44,26,11,0.08)',
+                            fontSize: '0.8rem',
+                            animation: 'fade-in 0.3s ease'
+                          }}>
+                            <h4 style={{ fontWeight: 'bold', fontSize: '0.72rem', color: 'var(--text-primary)', marginBottom: '0.5rem', fontFamily: 'var(--font-sans)' }}>
+                              📊 {t("Signature Aromatique", "Aromatic Signature")}
+                            </h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                              {Object.entries(FLAVOR_PROFILES[prod.id] || { spicy: 1, umami: 4, sweet: 1, tangy: 1, herby: 2 }).map(([flavor, val]) => {
+                                const flavorNames = {
+                                  spicy: { fr: 'Épicé 🌶️', en: 'Spicy 🌶️' },
+                                  umami: { fr: 'Umami 🥩', en: 'Umami 🥩' },
+                                  sweet: { fr: 'Sucré 🍯', en: 'Sweet 🍯' },
+                                  tangy: { fr: 'Acidulé 🍋', en: 'Tangy 🍋' },
+                                  herby: { fr: 'Herbacé 🌿', en: 'Herby 🌿' }
+                                };
+                                return (
+                                  <div key={flavor} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ fontSize: '0.65rem', width: '50px', color: 'var(--text-secondary)' }}>
+                                      {t(flavorNames[flavor].fr, flavorNames[flavor].en)}
+                                    </span>
+                                    <div style={{ flex: 1, height: '4px', backgroundColor: 'rgba(44,26,11,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                                      <div style={{
+                                        width: `${val * 20}%`,
+                                        height: '100%',
+                                        backgroundColor: flavor === 'spicy' ? 'var(--color-terracotta)' : 'var(--color-copper)',
+                                        borderRadius: '2px'
+                                      }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 'bold', width: '10px' }}>{val}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
                           <div>

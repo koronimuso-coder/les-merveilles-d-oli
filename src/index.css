@@ -35,6 +35,39 @@
   --cursor-size: 20px;
 }
 
+/* Theme variable overrides */
+body.theme-ivory {
+  --bg-primary: var(--color-ivory);
+  --bg-secondary: var(--color-cream);
+  --bg-dark: var(--color-cacao);
+  --text-primary: var(--color-cacao);
+  --text-secondary: #5a4b41;
+  --text-light: var(--color-ivory);
+}
+
+body.theme-dark {
+  --bg-primary: #120d0b;
+  --bg-secondary: #1a1310;
+  --bg-dark: #0a0706;
+  --text-primary: #f5efe6;
+  --text-secondary: #c8b0a4;
+  --text-light: #f5efe6;
+}
+
+body.theme-sunset {
+  --bg-primary: #1e130c;
+  --bg-secondary: #2c1a11;
+  --bg-dark: #120905;
+  --text-primary: #fdfaf6;
+  --text-secondary: #e6b080;
+  --text-light: #fdfaf6;
+}
+
+body {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+
 /* Base Styles */
 * {
   box-sizing: border-box;

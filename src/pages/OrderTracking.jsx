@@ -1,6 +1,143 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { CheckCircle2, Circle, Flame, PackageCheck, Truck, ClipboardCheck } from 'lucide-react';
+
+const LiveDeliveryMap = ({ language, t }) => {
+  const [progress, setProgress] = useState(0); // 0 to 100
+  const [statusMessage, setStatusMessage] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          return 0; // loop
+        }
+        return prev + 1;
+      });
+    }, 450);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (progress < 15) {
+      setStatusMessage(t("Le chef emballe vos plats chauds avec soin...", "The chef is packing your hot dishes with care..."));
+    } else if (progress < 35) {
+      setStatusMessage(t("Le livreur quitte Gatineau (40 chemin des Érables).", "The courier leaves Gatineau (40 chemin des Érables)."));
+    } else if (progress < 55) {
+      setStatusMessage(t("Traversée du Pont Alexandra. Le Ndolé est sous cloche thermique !", "Crossing the Alexandra Bridge. The Ndole is in a thermal bag!"));
+    } else if (progress < 75) {
+      setStatusMessage(t("Le livreur approche de la Colline du Parlement à Ottawa.", "The courier is near Parliament Hill in Ottawa. Almost there."));
+    } else if (progress < 92) {
+      setStatusMessage(t("Arrivée imminente dans votre quartier !", "Arriving in your neighborhood shortly!"));
+    } else {
+      setStatusMessage(t("Le livreur est garé devant chez vous ! Bon appétit !", "The courier is parked at your door! Bon appetit!"));
+    }
+  }, [progress, language]);
+
+  const width = 500;
+  const height = 150;
+  const startX = 40;
+  const endX = width - 40;
+  const centerY = height / 2;
+
+  // Generate sinus path points
+  const points = [];
+  for (let i = 0; i <= 100; i++) {
+    const x = startX + (endX - startX) * (i / 100);
+    const y = centerY + Math.sin((x / width) * Math.PI * 3.5) * 25;
+    points.push(`${x},${y}`);
+  }
+  const pathD = `M ${points.join(' L ')}`;
+
+  // Current driver coordinate
+  const currentX = startX + (endX - startX) * (progress / 100);
+  const currentY = centerY + Math.sin((currentX / width) * Math.PI * 3.5) * 25;
+
+  return (
+    <div style={{
+      margin: '1.5rem 0 2rem 0',
+      padding: '1.5rem',
+      backgroundColor: 'var(--bg-primary)',
+      borderRadius: '20px',
+      border: '1px solid rgba(44,26,11,0.06)',
+      position: 'relative'
+    }}>
+      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.6rem', fontFamily: 'var(--font-sans)', color: 'var(--text-primary)' }}>
+        🗺️ {t("Carte de Livraison en Direct", "Live Delivery Map")}
+      </h3>
+
+      <div style={{ fontSize: '0.8rem', color: 'var(--color-terracotta)', fontWeight: 'bold', marginBottom: '1rem' }}>
+        📍 {statusMessage}
+      </div>
+
+      <div style={{ position: 'relative', height: `${height}px`, width: '100%', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid rgba(44,26,11,0.05)', overflow: 'hidden' }}>
+        {/* Grid pattern */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          opacity: 0.04,
+          backgroundImage: 'radial-gradient(var(--color-cacao) 1px, transparent 0)',
+          backgroundSize: '20px 20px'
+        }} />
+
+        <svg style={{ width: '100%', height: '100%' }} viewBox={`0 0 ${width} ${height}`}>
+          {/* Base track */}
+          <path d={pathD} fill="none" stroke="rgba(44,26,11,0.08)" strokeWidth="4" />
+          
+          {/* Active track */}
+          <path 
+            d={pathD} 
+            fill="none" 
+            stroke="var(--color-terracotta)" 
+            strokeWidth="4" 
+            strokeDasharray="8 6"
+            strokeDashoffset={-progress * 2.5}
+          />
+
+          {/* Sourcing Landmark */}
+          <circle cx={startX} cy={centerY} r="8" fill="var(--color-forest)" />
+          <text x={startX - 15} y={centerY - 18} fill="var(--text-primary)" fontSize="10" fontWeight="bold">
+            {t("Gatineau 🇨🇦", "Gatineau 🇨🇦")}
+          </text>
+
+          {/* Ottawa Landmark */}
+          <circle cx={width * 0.55} cy={centerY - 10} r="4" fill="rgba(44,26,11,0.2)" />
+          <text x={width * 0.46} y={centerY - 22} fill="var(--text-secondary)" fontSize="9" opacity="0.7">
+            🏛️ {t("Ottawa (Centre)", "Ottawa (Downtown)")}
+          </text>
+
+          {/* Destination Landmark */}
+          <circle cx={endX} cy={centerY - 12} r="8" fill="var(--color-bordeaux)" />
+          <text x={endX - 25} y={centerY + 18} fill="var(--text-primary)" fontSize="10" fontWeight="bold">
+            🏠 {t("Vous", "You")}
+          </text>
+
+          {/* Delivery Car */}
+          <g transform={`translate(${currentX - 12}, ${currentY - 12})`}>
+            <circle cx="12" cy="12" r="14" fill="var(--color-safran)" opacity="0.3" style={{ animation: 'pulse 1.2s infinite' }} />
+            <text x="3" y="18" fontSize="16">🚗</text>
+          </g>
+        </svg>
+
+        <style>{`
+          @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+          }
+        `}</style>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', marginTop: '0.8rem', color: 'var(--text-secondary)' }}>
+        <span>⏱️ {t("Estimation : ", "ETA: ")} <strong>{Math.max(2, Math.ceil(25 - (progress * 0.23)))} mins</strong></span>
+        <span>⚡ {t("Vitesse moyenne : 48 km/h", "Average speed: 48 km/h")}</span>
+      </div>
+    </div>
+  );
+};
 
 const OrderTracking = () => {
   const { language, t } = useApp();
@@ -116,6 +253,11 @@ const OrderTracking = () => {
                 {t("EN PRÉPARATION", "PREPARING")}
               </span>
             </div>
+
+            {/* Simulated Live Delivery Map Tracker */}
+            {trackingData.type === 'delivery' && (
+              <LiveDeliveryMap language={language} t={t} />
+            )}
 
             {/* Timeline Steps */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>

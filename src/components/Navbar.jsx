@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useCart } from '../context/CartContext';
-import { Menu, X, ShoppingBag, Globe, EyeOff, Eye } from 'lucide-react';
+import { Menu, X, ShoppingBag, Globe, EyeOff, Eye, Palette } from 'lucide-react';
 import MagneticButton from './MagneticButton';
 
 const Navbar = () => {
-  const { language, toggleLanguage, animationsEnabled, setAnimationsEnabled, siteSettings, t } = useApp();
+  const { language, toggleLanguage, animationsEnabled, setAnimationsEnabled, siteSettings, theme, setTheme, t } = useApp();
   const { getTotalCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredLinkImage, setHoveredLinkImage] = useState('');
@@ -83,6 +83,33 @@ const Navbar = () => {
           >
             <Globe size={18} />
             <span>{language.toUpperCase()}</span>
+          </button>
+
+          {/* Theme Selector */}
+          <button 
+            onClick={() => {
+              const themes = ['ivory', 'dark', 'sunset'];
+              const nextIndex = (themes.indexOf(theme) + 1) % themes.length;
+              setTheme(themes[nextIndex]);
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: isOpen ? 'var(--color-ivory)' : 'var(--text-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.8rem',
+              fontWeight: '500'
+            }}
+            title={t("Changer de thème visuel", "Change visual theme")}
+          >
+            <Palette size={18} />
+            <span className="desktop-only">
+              {theme === 'ivory' && t('Ivoire', 'Ivory')}
+              {theme === 'dark' && t('Nuit', 'Night')}
+              {theme === 'sunset' && t('Safran', 'Saffron')}
+            </span>
           </button>
 
           {/* Shopping Cart button */}

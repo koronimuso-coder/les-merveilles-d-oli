@@ -73,6 +73,13 @@ export const AppProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  const [theme, setTheme] = useState('ivory'); // Theme states: 'ivory', 'dark', 'sunset'
+
+  useEffect(() => {
+    document.body.classList.remove('theme-ivory', 'theme-dark', 'theme-sunset');
+    document.body.classList.add(`theme-${theme}`);
+  }, [theme]);
+
   // Toggle Language
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'fr' ? 'en' : 'fr');
@@ -94,6 +101,8 @@ export const AppProvider = ({ children }) => {
       setAnimationsEnabled,
       siteSettings,
       setSiteSettings,
+      theme,
+      setTheme,
       t
     }}>
       {children}
