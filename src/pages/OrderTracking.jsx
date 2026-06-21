@@ -175,6 +175,73 @@ const OrderTracking = () => {
                 );
               })}
             </div>
+
+            {/* Guide de Dégustation / Heating Instructions */}
+            <div style={{
+              marginTop: '3rem',
+              backgroundColor: 'var(--bg-primary)',
+              borderRadius: '20px',
+              padding: '1.8rem',
+              border: '1px solid rgba(44, 26, 17, 0.05)'
+            }}>
+              <h3 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-serif)', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🍽️ {t("Guide de Dégustation & Réchauffage", "Serving & Reheating Guide")}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.2rem' }}>
+                {t(
+                  "Nos plats traditionnels sont riches en sauces et épices naturelles. Suivez ces conseils simples pour libérer tous leurs arômes :",
+                  "Our traditional dishes are rich in rich sauces and natural spices. Follow these simple tips to unlock their full aromas:"
+                )}
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {[
+                  {
+                    titleFr: "🥬 Le Ndolé Royal",
+                    titleEn: "🥬 The Royal Ndole",
+                    instructionsFr: "Réchauffez à feu très doux dans une casserole en ajoutant une cuillère à soupe d'eau pour détendre la sauce aux arachides. Mélangez régulièrement pour éviter qu'il n'attache au fond. Servez bien chaud avec l'Alloco et du riz blanc.",
+                    instructionsEn: "Reheat on very low heat in a pot, adding a tablespoon of water to loosen the peanut sauce. Stir regularly to prevent sticking. Serve piping hot with Alloco and white rice."
+                  },
+                  {
+                    titleFr: "🧅 Le Poulet Yassa",
+                    titleEn: "🧅 The Chicken Yassa",
+                    instructionsFr: "Au micro-ondes (puissance moyenne, 2-3 min) ou idéalement au four traditionnel à 150°C (300°F) pendant 10 minutes couvert d'une feuille d'aluminium. Cela garde le poulet juteux et caramélise doucement les oignons au citron.",
+                    instructionsEn: "Microwave on medium power for 2-3 mins, or ideally in a traditional oven at 150°C (300°F) for 10 mins covered in foil. This keeps the chicken juicy and gently caramelizes the lemon onions."
+                  },
+                  {
+                    titleFr: "🥜 Le Mafé de Bœuf",
+                    titleEn: "🥜 The Beef Mafe",
+                    instructionsFr: "La sauce d'arachide a tendance à s'épaissir au repos. Réchauffez à feu doux en remuant fréquemment, en y ajoutant un filet d'eau si nécessaire. Accompagnez de riz blanc cuit à la vapeur.",
+                    instructionsEn: "Peanut sauce tends to thicken when resting. Reheat on low heat, stirring frequently, adding a splash of water if necessary. Accompany with steamed white rice."
+                  },
+                  {
+                    titleFr: "🥟 Les Pastels de Poisson",
+                    titleEn: "🥟 Fish Pastels",
+                    instructionsFr: "Pour préserver leur texture croustillante originelle, évitez absolument le micro-ondes. Passez-les au four à 180°C (350°F) pendant 5 à 7 minutes. Servez croustillant avec la sauce piquante à température ambiante.",
+                    instructionsEn: "To preserve their original crispy texture, avoid the microwave. Heat them in the oven at 180°C (350°F) for 5 to 7 minutes. Serve crispy with the spicy sauce at room temperature."
+                  }
+                ].map((dish, dIdx) => (
+                  <details 
+                    key={dIdx}
+                    style={{
+                      padding: '0.8rem 1rem',
+                      borderRadius: '12px',
+                      backgroundColor: 'var(--bg-secondary)',
+                      border: '1px solid rgba(44,26,11,0.06)',
+                      fontSize: '0.85rem'
+                    }}
+                  >
+                    <summary style={{ fontWeight: 'bold', cursor: 'pointer', outline: 'none', color: 'var(--color-terracotta)' }}>
+                      {t(dish.titleFr, dish.titleEn)}
+                    </summary>
+                    <p style={{ color: 'var(--text-secondary)', marginTop: '0.6rem', lineHeight: '1.4', paddingLeft: '8px' }}>
+                      {t(dish.instructionsFr, dish.instructionsEn)}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
 

@@ -505,6 +505,128 @@ const Home = () => {
           </div>
         </section>
 
+        {/* 4b. EXPLORATEUR D'INGRÉDIENTS INTERACTIF ("DE LA TERRE À L'ASSIETTE") */}
+        <section style={{ padding: '6rem 0', backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+              <span style={{ color: 'var(--color-terracotta)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>
+                {t("Épices et Terroir", "Spices & Sourcing")}
+              </span>
+              <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+                {t("Les Secrets de Nos Ingrédients", "Our Secret Premium Ingredients")}
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0.5rem auto 0 auto' }}>
+                {t(
+                  "Chaque plat tire sa force d'ingrédients d'exception sourcés de manière éthique, combinant épices du terroir africain et fraîcheur locale.",
+                  "Each dish owes its character to exceptional ingredients ethically sourced, blending authentic African spices with local freshness."
+                )}
+              </p>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '2rem'
+            }}>
+              {[
+                {
+                  nameFr: "Poivre de Penja (Cameroun)",
+                  nameEn: "Penja Pepper (Cameroon)",
+                  descFr: "Le premier produit du terroir africain à obtenir une Indication Géographique Protégée. Cultivé sur des terres volcaniques, il offre des arômes boisés et une puissance aromatique unique qui parfume nos viandes braisées.",
+                  descEn: "The first African product to receive a Protected Geographical Indication (PGI). Grown in volcanic soils, it delivers unique woody notes and an aromatic punch that elevates our braised meats.",
+                  benefitFr: "Digeste, antioxydant et riche en piperine stimulante.",
+                  benefitEn: "Aids digestion, rich in antioxidants and active piperine.",
+                  origin: "Province du Littoral, Cameroun",
+                  icon: "🌶️"
+                },
+                {
+                  nameFr: "Herbes de Ndolé Sauvages",
+                  nameEn: "Wild Bitterleaves (Ndole)",
+                  descFr: "Les feuilles de vernonia (ndolé) sont rigoureusement sélectionnées, rincées et blanchies plusieurs fois selon la méthode ancestrale pour conserver leurs vertus thérapeutiques tout en adoucissant leur amertume.",
+                  descEn: "Vernonia leaves (ndole) are rigorously selected, washed, and blanched multiple times following ancestral techniques to retain therapeutic benefits while softening their natural bitterness.",
+                  benefitFr: "Purifiant, tonique hépatique et riche en sels minéraux.",
+                  benefitEn: "Detoxifying, liver tonic, and packed with essential minerals.",
+                  origin: "Régions forestières d'Afrique Centrale",
+                  icon: "🌿"
+                },
+                {
+                  nameFr: "Banane Plantain Artisanale",
+                  nameEn: "Artisanal Sweet Plantain",
+                  descFr: "Nos bananes plantains sont mûries à point de manière 100% naturelle jusqu'à ce que leur sucre soit parfaitement concentré. Elles sont ensuite frites à température contrôlée pour obtenir un Alloco croustillant à l'extérieur et fondant à l'intérieur.",
+                  descEn: "Our plantains are ripened naturally until their sugars are fully concentrated. They are fried at a monitored temperature to guarantee Alloco that is crispy on the outside and melting on the inside.",
+                  benefitFr: "Excellente source de potassium, fibres et glucides complexes.",
+                  benefitEn: "Rich in potassium, dietary fibers, and complex energy carbs.",
+                  origin: "Ottawa-Gatineau (Marchés locaux & importations éthiques)",
+                  icon: "🍌"
+                }
+              ].map((ing, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderRadius: '24px',
+                    padding: '2.5rem',
+                    boxShadow: '0 15px 35px rgba(44, 26, 17, 0.03)',
+                    border: '1px solid rgba(44, 26, 17, 0.05)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.2rem',
+                    transition: 'all 0.3s ease',
+                    cursor: 'default'
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'translateY(-8px)';
+                    e.currentTarget.style.boxShadow = '0 20px 45px rgba(200,92,50,0.08)';
+                    e.currentTarget.style.borderColor = 'var(--color-terracotta)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(44, 26, 17, 0.03)';
+                    e.currentTarget.style.borderColor = 'rgba(44, 26, 17, 0.05)';
+                  }}
+                >
+                  <div style={{
+                    fontSize: '2.5rem',
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '16px',
+                    backgroundColor: 'rgba(200,92,50,0.06)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {ing.icon}
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
+                      {t(ing.nameFr, ing.nameEn)}
+                    </h3>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-terracotta)', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                      📍 {ing.origin}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                    {t(ing.descFr, ing.descEn)}
+                  </p>
+                  <div style={{
+                    marginTop: 'auto',
+                    borderTop: '1px dashed rgba(44,26,11,0.1)',
+                    paddingTop: '1rem',
+                    fontSize: '0.8rem',
+                    color: 'var(--color-forest)',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    💚 {t("Bienfait :", "Health benefit:")} {t(ing.benefitFr, ing.benefitEn)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* 5, 6, 7. MEILLEURES VENTES & MENUS DU JOUR & MENUS FAMILIAUX */}
         <section style={{ padding: '6rem 0' }}>
           <div className="container">
@@ -882,6 +1004,74 @@ const Home = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 15. FAQ ACCORDÉON INTERACTIF */}
+        <section style={{ padding: '6rem 0' }}>
+          <div className="container" style={{ maxWidth: '800px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+              <span style={{ color: 'var(--color-terracotta)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>
+                {t("Des Réponses à Vos Questions", "Frequently Asked Questions")}
+              </span>
+              <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+                {t("Questions Fréquentes", "Frequently Asked Questions")}
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                {t(
+                  "Trouvez rapidement les réponses concernant la livraison à Ottawa-Gatineau, les allergènes et nos services traiteur.",
+                  "Find quick answers regarding delivery in Ottawa-Gatineau, allergens, and our catering services."
+                )}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                {
+                  qFr: "Quels sont vos délais de préparation et de livraison ?",
+                  qEn: "What are your preparation and delivery times?",
+                  aFr: "Nos plats traditionnels comme le Ndolé ou le Mafé de bœuf sont préparés fraîchement le jour même. Pour la livraison directe à Ottawa-Gatineau, prévoyez un délai de 45 à 60 minutes selon l'affluence. Pour le service traiteur événementiel, nous recommandons de soumettre votre devis au moins 7 jours à l'avance.",
+                  aEn: "Our traditional dishes like Ndole or Beef Mafe are freshly prepared daily. For direct delivery in Ottawa-Gatineau, expect 45 to 60 minutes depending on peak hours. For event catering, we recommend requesting your quote at least 7 days in advance."
+                },
+                {
+                  qFr: "Comment réchauffer mes plats pour conserver leur goût d'origine ?",
+                  qEn: "How do I reheat my meals to preserve their original taste?",
+                  aFr: "Un guide de dégustation interactif est disponible sur votre écran de suivi après achat. En règle générale, privilégiez un réchauffage doux à la casserole avec une cuillère d'eau pour le Ndolé et le Mafé, et le four traditionnel à 180°C pour redonner du croustillant aux Pastels de poisson.",
+                  aEn: "An interactive tasting guide is available on your tracking screen after purchase. Generally, prefer gentle reheating in a pot with a spoonful of water for Ndole and Mafe, and a traditional oven at 180°C to restore crispiness to fish Pastels."
+                },
+                {
+                  qFr: "Gérez-vous les allergies alimentaires et régimes spéciaux ?",
+                  qEn: "Do you accommodate food allergies and special diets?",
+                  aFr: "Absolument. Notre menu dispose d'un filtre d'allergènes exclusif (Safe Dining Mode) pour exclure les arachides, le gluten, les crevettes et la moutarde. Les plats non compatibles s'estompent visuellement pour assurer votre sécurité. Nous proposons également plusieurs accompagnements et plats végétariens.",
+                  aEn: "Absolutely. Our menu features a dedicated allergen filter (Safe Dining Mode) to screen out peanuts, gluten, shellfish, and mustard. Incompatible dishes fade out visually to ensure your safety. We also offer several vegetarian sides and courses."
+                },
+                {
+                  qFr: "Comment se déroule la facturation pour les entreprises ?",
+                  qEn: "How does billing work for corporate accounts?",
+                  aFr: "Dans notre Portail Entreprise, vous pouvez soumettre une demande pour activer un compte pro. Une fois validé, votre entreprise bénéficie d'une facturation mensuelle consolidée fin de mois, de budgets alloués par département et de la possibilité de créer des commandes groupées d'équipe en un clic.",
+                  aEn: "Through our Corporate Portal, you can request account activation. Once approved, your business gains access to consolidated monthly invoicing, departmental budgets, and one-click group ordering links for team lunches."
+                }
+              ].map((faq, fIdx) => (
+                <details 
+                  key={fIdx}
+                  style={{
+                    padding: '1.2rem 1.5rem',
+                    borderRadius: '16px',
+                    backgroundColor: 'var(--bg-secondary)',
+                    border: '1px solid rgba(44,26,11,0.05)',
+                    fontSize: '0.95rem',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <summary style={{ fontWeight: 'bold', cursor: 'pointer', outline: 'none', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{t(faq.qFr, faq.qEn)}</span>
+                  </summary>
+                  <p style={{ color: 'var(--text-secondary)', marginTop: '0.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+                    {t(faq.aFr, faq.aEn)}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </section>

@@ -20,16 +20,28 @@ const Catering = () => {
   
   // Portion Calculator States
   const [calcGuests, setCalcGuests] = useState(30);
-  const [calcType, setCalcType] = useState('buffet'); // 'buffet' | 'plated' | 'box'
-  const [calcCourses, setCalcCourses] = useState(3); // 2 | 3 | 4
   const [calcService, setCalcService] = useState('dropoff'); // 'dropoff' | 'staffed'
+  const [selectedBuilderItems, setSelectedBuilderItems] = useState(['ndole', 'alloco', 'bissap']);
+
+  const CATERING_ITEMS = [
+    { id: 'pastels', nameFr: 'Pastels de Poisson', nameEn: 'Fish Pastels', category: 'entrees', unitPrice: 2.00, ratio: 2 }, // 2 per person
+    { id: 'ndole', nameFr: 'Ndolé Royal', nameEn: 'Royal Ndole', category: 'plats', unitPrice: 10.00, ratio: 0.4 }, // 0.4 portion per person
+    { id: 'yassa', nameFr: 'Poulet Yassa Impérial', nameEn: 'Imperial Chicken Yassa', category: 'plats', unitPrice: 8.50, ratio: 0.4 },
+    { id: 'mafe', nameFr: 'Mafé de Bœuf', nameEn: 'Beef Mafe', category: 'plats', unitPrice: 9.00, ratio: 0.4 },
+    { id: 'alloco', nameFr: 'Alloco croustillant', nameEn: 'Crispy Alloco', category: 'sides', unitPrice: 3.00, ratio: 0.5 },
+    { id: 'bissap', nameFr: 'Bissap Royal à l\'hibiscus', nameEn: 'Royal Hibiscus Bissap', category: 'drinks', unitPrice: 2.50, ratio: 1.0 }
+  ];
 
   // Calculator Outputs
-  const basePricePerPerson = calcType === 'buffet' ? 30 : calcType === 'plated' ? 45 : 20;
-  const courseMultiplier = calcCourses === 2 ? 0.9 : calcCourses === 3 ? 1.0 : 1.25;
-  const serviceAddition = calcService === 'staffed' ? 12 : 0;
-  const costPerGuest = (basePricePerPerson * courseMultiplier) + serviceAddition;
-  const estimatedTotalCost = costPerGuest * calcGuests;
+  const foodCost = CATERING_ITEMS.reduce((sum, item) => {
+    if (!selectedBuilderItems.includes(item.id)) return sum;
+    const qty = Math.ceil(calcGuests * item.ratio);
+    return sum + (qty * item.unitPrice);
+  }, 0);
+
+  const serviceAddition = calcService === 'staffed' ? (calcGuests * 12) : 0;
+  const estimatedTotalCost = foodCost + serviceAddition;
+  const costPerGuest = calcGuests > 0 ? (estimatedTotalCost / calcGuests) : 0;
 
   // 8-Step Form States
   const [formStep, setFormStep] = useState(1);
@@ -137,7 +149,7 @@ const Catering = () => {
           marginBottom: '5rem'
         }}>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem', fontFamily: 'var(--font-serif)', textAlign: 'center' }}>
-            🧮 {t("Calculateur de Portion & Budget", "Portion & Budget Estimator")}
+            🧮 {t("Créateur de Buffet & Quantités", "Catering Buffet Builder")}
           </h2>
 
           <div style={{
@@ -165,28 +177,64 @@ const Catering = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{t("Style de service :", "Service style:")}</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => setCalcType('box')} className={`calc-pill ${calcType === 'box' ? 'active' : ''}`}>{t("Plateau Pro", "Lunch Box")}</button>
-                  <button onClick={() => setCalcType('buffet')} className={`calc-pill ${calcType === 'buffet' ? 'active' : ''}`}>{t("Buffet libre", "Buffet")}</button>
-                  <button onClick={() => setCalcType('plated')} className={`calc-pill ${calcType === 'plated' ? 'active' : ''}`}>{t("Dressage à l'assiette", "Plated")}</button>
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{t("Nombre de services :", "Number of courses:")}</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => setCalcCourses(2)} className={`calc-pill ${calcCourses === 2 ? 'active' : ''}`}>2 {t("plats", "courses")}</button>
-                  <button onClick={() => setCalcCourses(3)} className={`calc-pill ${calcCourses === 3 ? 'active' : ''}`}>3 {t("plats", "courses")}</button>
-                  <button onClick={() => setCalcCourses(4)} className={`calc-pill ${calcCourses === 4 ? 'active' : ''}`}>4 {t("plats", "courses")}</button>
-                </div>
-              </div>
-
-              <div>
                 <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{t("Prise en charge :", "Staffing requirements:")}</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => setCalcService('dropoff')} className={`calc-pill ${calcService === 'dropoff' ? 'active' : ''}`}>{t("Livraison simple", "Delivery Only")}</button>
-                  <button onClick={() => setCalcService('staffed')} className={`calc-pill ${calcService === 'staffed' ? 'active' : ''}`}>{t("Avec serveurs", "Full Staffed")}</button>
+                  <button type="button" onClick={() => setCalcService('dropoff')} className={`calc-pill ${calcService === 'dropoff' ? 'active' : ''}`}>{t("Livraison simple", "Delivery Only")}</button>
+                  <button type="button" onClick={() => setCalcService('staffed')} className={`calc-pill ${calcService === 'staffed' ? 'active' : ''}`}>{t("Avec serveurs (+12$/pers)", "Full Staffed (+12$/pax)")}</button>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{t("Composez le menu du buffet :", "Build your buffet menu:")}</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
+                  {CATERING_ITEMS.map(item => {
+                    const isSelected = selectedBuilderItems.includes(item.id);
+                    const qty = Math.ceil(calcGuests * item.ratio);
+                    return (
+                      <div 
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedBuilderItems(prev => 
+                            prev.includes(item.id) 
+                              ? prev.filter(x => x !== item.id) 
+                              : [...prev, item.id]
+                          );
+                        }}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.8rem 1rem',
+                          borderRadius: '12px',
+                          border: `2px solid ${isSelected ? 'var(--color-terracotta)' : 'rgba(44,26,11,0.08)'}`,
+                          backgroundColor: isSelected ? 'rgba(200,92,50,0.03)' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontSize: '0.85rem'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            readOnly
+                            style={{ accentColor: 'var(--color-terracotta)' }}
+                          />
+                          <div>
+                            <p style={{ fontWeight: isSelected ? '600' : '400', margin: 0 }}>{t(item.nameFr, item.nameEn)}</p>
+                            <span style={{ fontSize: '0.7rem', color: '#888' }}>
+                              {item.ratio >= 1 
+                                ? `${item.ratio}x / ${t("pers.", "guest")}` 
+                                : `${item.ratio} ${t("portion / pers.", "portion / guest")}`}
+                            </span>
+                          </div>
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: 'var(--color-terracotta)' }}>
+                          {qty} {t("portions", "portions")}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -201,31 +249,93 @@ const Catering = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: '1.2rem',
-              boxShadow: '0 15px 35px rgba(44, 26, 17, 0.1)'
+              boxShadow: '0 15px 35px rgba(44, 26, 17, 0.1)',
+              alignSelf: 'stretch',
+              justifyContent: 'center'
             }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--color-safran)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 {t("Estimation Budgétaire", "Budget Estimate")}
               </span>
               <div>
-                <span style={{ fontSize: '3rem', fontFamily: 'var(--font-serif)', color: 'var(--color-terracotta)', fontWeight: 'bold' }}>
+                <span style={{ fontSize: '3rem', fontFamily: 'var(--font-serif)', color: 'var(--color-safran)', fontWeight: 'bold' }}>
                   {estimatedTotalCost.toFixed(2)} $
                 </span>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-cream)' }}>
                   {costPerGuest.toFixed(2)} $ / {t("invité", "guest")}
                 </p>
               </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-cream)', lineHeight: '1.4' }}>
+
+              {/* Portion breakdown list */}
+              <div style={{
+                textAlign: 'left',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                padding: '1rem 0',
+                maxHeight: '150px',
+                overflowY: 'auto',
+                fontSize: '0.8rem',
+                color: 'var(--color-cream)'
+              }}>
+                <p style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--color-safran)' }}>
+                  {t("Détail des quantités calculées :", "Portion Quantities Breakdown:")}
+                </p>
+                {selectedBuilderItems.length === 0 ? (
+                  <p style={{ fontStyle: 'italic', color: '#aaa' }}>{t("Aucun plat sélectionné", "No items selected")}</p>
+                ) : (
+                  CATERING_ITEMS.filter(i => selectedBuilderItems.includes(i.id)).map(item => {
+                    const qty = Math.ceil(calcGuests * item.ratio);
+                    return (
+                      <div key={item.id} style={{ display: 'flex', justifyContext: 'space-between', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                        <span>• {t(item.nameFr, item.nameEn)}</span>
+                        <strong>{qty} {t("portions", "portions")}</strong>
+                      </div>
+                    );
+                  })
+                )}
+                {calcService === 'staffed' && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '0.3rem', marginTop: '0.3rem' }}>
+                    <span>• {t("Service complet (Serveurs)", "Full Staffing Service")}</span>
+                    <strong>{calcGuests} pax</strong>
+                  </div>
+                )}
+              </div>
+
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-cream)', opacity: 0.8, lineHeight: '1.4' }}>
                 {t(
-                  "Cette estimation inclut les plats et le service choisi, hors taxes locales. Parlez à notre équipe pour bloquer cette tarification.",
-                  "This estimate includes food and selected service, excluding local taxes. Talk to our team to freeze this quote."
+                  "Cette estimation varie selon les options finales et la vaisselle. Les portions sont calibrées selon les standards de satiété.",
+                  "This estimate varies based on final choices and tableware. Portions calibrated to standard satiety values."
                 )}
               </p>
               <button 
+                type="button"
                 onClick={() => {
                   setEventGuests(calcGuests.toString());
+                  
+                  const newMenuPrefs = {
+                    ndole: selectedBuilderItems.includes('ndole'),
+                    yassa: selectedBuilderItems.includes('yassa'),
+                    mafe: selectedBuilderItems.includes('mafe'),
+                    alloco: selectedBuilderItems.includes('alloco'),
+                    pastels: selectedBuilderItems.includes('pastels'),
+                    bissap: selectedBuilderItems.includes('bissap')
+                  };
+                  setMenuPrefs(newMenuPrefs);
+                  
+                  setServicePrefs(prev => ({
+                    ...prev,
+                    staffing: calcService === 'staffed'
+                  }));
+
                   setFormStep(1);
-                  // Scroll to quote builder
                   document.getElementById('quote-builder-form').scrollIntoView({ behavior: 'smooth' });
+
+                  const event = new CustomEvent('toast-alert', {
+                    detail: { 
+                      msgFr: "Buffet synchronisé avec le devis !",
+                      msgEn: "Buffet synced with the quote request!"
+                    }
+                  });
+                  window.dispatchEvent(event);
                 }} 
                 className="btn btn-primary"
                 style={{ width: '100%', backgroundColor: 'var(--color-terracotta)' }}

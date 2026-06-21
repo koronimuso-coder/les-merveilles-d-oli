@@ -6,22 +6,23 @@ const GiftCards = () => {
   const { language, t } = useApp();
   const translate = (f, e) => t(f, e);
   
-  const [selectedTheme, setSelectedTheme] = useState('birthday'); // 'birthday'|'thankyou'|'love'|'corporate'
+  const [selectedTheme, setSelectedTheme] = useState('wax_royal');
   const [amount, setAmount] = useState(50);
   const [senderName, setSenderName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [recipientName, setRecipientName] = useState('');
   const [giftMessage, setGiftMessage] = useState('');
+  const [sendDate, setSendDate] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const themes = [
-    { id: 'birthday', label: '🎂 Anniversaire', labelEn: 'Birthday', color: 'var(--color-terracotta)', pattern: 'repeating-linear-gradient(45deg, #C85C32, #C85C32 10px, #2C1A11 10px, #2C1A11 20px)' },
-    { id: 'thankyou', label: '🙏 Merci', labelEn: 'Thank You', color: 'var(--color-forest)', pattern: 'repeating-linear-gradient(135deg, #1E2F23, #1E2F23 15px, #D4AF37 15px, #D4AF37 18px)' },
-    { id: 'love', label: '❤️ Amour', labelEn: 'Love', color: 'var(--color-bordeaux)', pattern: 'radial-gradient(circle, #5C1D24 20%, #2C1A11 80%)' },
-    { id: 'corporate', label: '💼 Pro', labelEn: 'Corporate', color: 'var(--color-cacao)', pattern: 'repeating-radial-gradient(circle, #2C1A11, #2C1A11 10px, #D38B5D 10px, #D38B5D 20px)' }
+    { id: 'wax_royal', label: '⚜️ Wax Royal', labelEn: 'Wax Royal', color: '#D4AF37', pattern: 'repeating-linear-gradient(45deg, #C85C32, #C85C32 15px, #D4AF37 15px, #D4AF37 30px, #2C1A11 30px, #2C1A11 32px)', textColor: '#ffffff' },
+    { id: 'indigo_tribal', label: '💠 Indigo Tribal', labelEn: 'Indigo Tribal', color: '#1E2F23', pattern: 'repeating-radial-gradient(circle at 0 0, #1E2F23, #1E2F23 20px, #5C1D24 20px, #5C1D24 40px)', textColor: '#ffffff' },
+    { id: 'safran_sahel', label: '☀️ Safran Sahel', labelEn: 'Safran Sahel', color: '#D4AF37', pattern: 'linear-gradient(135deg, #D4AF37 25%, #2C1A11 25%, #2C1A11 50%, #D4AF37 50%, #D4AF37 75%, #2C1A11 75%, #2C1A11 100%)', textColor: '#ffffff' },
+    { id: 'ivoire_luxe', label: '✨ Ivoire Luxe', labelEn: 'Luxury Ivory', color: '#D38B5D', pattern: 'radial-gradient(circle, #F5EFE6 20%, #D38B5D 90%)', textColor: '#2C1A11' }
   ];
 
-  const activeTheme = themes.find(t => t.id === selectedTheme);
+  const activeTheme = themes.find(t => t.id === selectedTheme) || themes[0];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,7 +66,8 @@ const GiftCards = () => {
               borderRadius: '12px',
               boxShadow: '0 15px 35px rgba(44, 26, 17, 0.08)',
               overflow: 'visible',
-              border: '2px solid rgba(44,26,11,0.05)'
+              border: '2px solid rgba(44,26,11,0.05)',
+              perspective: '1000px'
             }}>
               
               {/* Back Envelope Fold */}
@@ -90,17 +92,18 @@ const GiftCards = () => {
                 height: '170px',
                 borderRadius: '12px',
                 background: activeTheme.pattern,
-                color: 'white',
+                color: activeTheme.textColor || 'white',
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
                 zIndex: 2,
-                transition: 'top 0.5s ease-in-out'
+                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                transformStyle: 'preserve-3d'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--color-safran)' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', color: activeTheme.id === 'ivoire_luxe' ? 'var(--color-terracotta)' : 'var(--color-safran)' }}>
                     GIFT CARD
                   </span>
                   <span style={{ fontSize: '1.8rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)' }}>
@@ -109,8 +112,13 @@ const GiftCards = () => {
                 </div>
 
                 <div>
-                  <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Pour / To: {recipientName || '...'}</p>
-                  <h3 style={{ fontSize: '1rem', fontFamily: 'var(--font-serif)', marginTop: '0.3rem' }}>LES MERVEILLES D'OLI</h3>
+                  {giftMessage && (
+                    <p style={{ fontSize: '0.7rem', fontStyle: 'italic', opacity: 0.9, maxHeight: '35px', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.3rem', lineHeight: '1.2' }}>
+                      "{giftMessage}"
+                    </p>
+                  )}
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, margin: 0 }}>Pour / To: {recipientName || '...'}</p>
+                  <h3 style={{ fontSize: '1rem', fontFamily: 'var(--font-serif)', marginTop: '0.2rem', margin: 0 }}>LES MERVEILLES D'OLI</h3>
                 </div>
               </div>
 
@@ -133,6 +141,7 @@ const GiftCards = () => {
               {themes.map(t => (
                 <button
                   key={t.id}
+                  type="button"
                   onClick={() => setSelectedTheme(t.id)}
                   className={`calc-pill ${selectedTheme === t.id ? 'active' : ''}`}
                   style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
@@ -161,7 +170,7 @@ const GiftCards = () => {
                     "Your gift card has been successfully issued and sent to the recipient via email."
                   )}
                 </p>
-                <button onClick={() => setSubmitted(false)} className="btn btn-primary" style={{ width: '100%' }}>
+                <button type="button" onClick={() => setSubmitted(false)} className="btn btn-primary" style={{ width: '100%' }}>
                   {translate("Offrir une autre carte", "Gift another card")}
                 </button>
               </div>
@@ -208,7 +217,19 @@ const GiftCards = () => {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.2rem' }}>{translate("Message personnalisé", "Custom Message")}</label>
-                  <textarea rows="3" value={giftMessage} onChange={e => setGiftMessage(e.target.value)} style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid rgba(44,26,11,0.1)' }} />
+                  <textarea rows="2" value={giftMessage} onChange={e => setGiftMessage(e.target.value)} style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid rgba(44,26,11,0.1)' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.2rem' }}>
+                    {translate("Planifier l'envoi (Optionnel)", "Schedule Send Date (Optional)")}
+                  </label>
+                  <input 
+                    type="date" 
+                    value={sendDate} 
+                    onChange={e => setSendDate(e.target.value)} 
+                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid rgba(44,26,11,0.1)' }} 
+                  />
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', gap: '8px' }}>
@@ -224,6 +245,7 @@ const GiftCards = () => {
       <style>{`
         .envelope-container:hover .sliding-gift-card {
           top: -90px !important;
+          transform: rotateY(-18deg) rotateX(12deg) translateZ(15px) !important;
         }
       `}</style>
     </main>

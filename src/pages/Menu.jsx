@@ -22,6 +22,7 @@ const Menu = () => {
   const [vegetarianOnly, setVegetarianOnly] = useState(false);
   const [onlyPromos, setOnlyPromos] = useState(false);
   const [priceRange, setPriceRange] = useState(100);
+  const [allergensAvoid, setAllergensAvoid] = useState([]);
 
   // Options Dialog / Drawer State
   const [activeProduct, setActiveProduct] = useState(null);
@@ -255,6 +256,54 @@ const Menu = () => {
                 </label>
               </div>
 
+              {/* Allergen Filters (Safe Dining Mode) */}
+              <div>
+                <label style={{ fontSize: '0.9rem', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
+                  {t("Régimes & Allergènes", "Diets & Allergens")}
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {[
+                    { id: 'arachides', labelFr: 'Sans arachides', labelEn: 'Peanut-free' },
+                    { id: 'gluten', labelFr: 'Sans gluten', labelEn: 'Gluten-free' },
+                    { id: 'crevettes', labelFr: 'Sans crevettes/crustacés', labelEn: 'Shellfish-free' },
+                    { id: 'moutarde', labelFr: 'Sans moutarde', labelEn: 'Mustard-free' }
+                  ].map(allg => {
+                    const active = allergensAvoid.includes(allg.id);
+                    return (
+                      <button
+                        key={allg.id}
+                        type="button"
+                        onClick={() => {
+                          setAllergensAvoid(prev => 
+                            prev.includes(allg.id) 
+                              ? prev.filter(x => x !== allg.id) 
+                              : [...prev, allg.id]
+                          );
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '0.6rem 0.8rem',
+                          borderRadius: '12px',
+                          border: `1px solid ${active ? 'var(--color-bordeaux)' : 'rgba(44, 26, 17, 0.08)'}`,
+                          backgroundColor: active ? 'rgba(128, 20, 20, 0.05)' : 'transparent',
+                          color: active ? 'var(--color-bordeaux)' : 'var(--text-primary)',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <span>{t(allg.labelFr, allg.labelEn)}</span>
+                        <span>{active ? '❌' : '🛡️'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Reset Filters button */}
               <button 
                 onClick={() => {
@@ -263,6 +312,7 @@ const Menu = () => {
                   setVegetarianOnly(false);
                   setOnlyPromos(false);
                   setPriceRange(100);
+                  setAllergensAvoid([]);
                   searchParams.delete('cat');
                   searchParams.delete('filter');
                   setSearchParams(searchParams);
@@ -284,66 +334,136 @@ const Menu = () => {
                 </div>
               ) : (
                 <div className="grid-catalog" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-                  {filteredProducts.map(prod => (
-                    <div key={prod.id} className="product-card">
-                      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
-                        <img src={prod.image} alt={t(prod.nameFr, prod.nameEn)} />
-                        
-                        {prod.promoPrice && (
-                          <span className="badge-promo">PROMO</span>
-                        )}
+                  {filteredProducts.map(prod => {
+                    const hasAllergen = prod.allergens && prod.allergens.some(a => allergensAvoid.includes(a));
+                    return (
+                      <div 
+                        key={prod.id} 
+                        className="product-card"
+                        style={{
+                          opacity: hasAllergen ? 0.45 : 1,
+                          filter: hasAllergen ? 'grayscale(60%)' : 'none',
+                          transition: 'all 0.3s ease',
+                          border: hasAllergen ? '1px dashed rgba(128, 20, 20, 0.2)' : 'none'
+                        }}
+                      >
+                        <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
+                          <img src={prod.image} alt={t(prod.nameFr, prod.nameEn)} />
+                          
+                          {prod.promoPrice && (
+                            <span className="badge-promo">PROMO</span>
+                          )}
 
-                        {prod.spiceLevel > 0 && (
-                          <span className="badge-spice">{'🌶️'.repeat(prod.spiceLevel)}</span>
-                        )}
-                      </div>
+                          {prod.spiceLevel > 0 && (
+                            <span className="badge-spice">{'🌶️'.repeat(prod.spiceLevel)}</span>
+                          )}
 
-                      <h3 style={{ fontSize: '1.2rem', marginTop: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-sans)' }}>
-                        {t(prod.nameFr, prod.nameEn)}
-                      </h3>
-                      
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', height: '50px', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.4rem' }}>
-                        {t(prod.descriptionFr, prod.descriptionEn)}
-                      </p>
+                          {hasAllergen && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '12px',
+                              right: '12px',
+                              backgroundColor: 'var(--color-bordeaux)',
+                              color: 'white',
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.7rem',
+                              fontWeight: 'bold',
+                              borderRadius: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                            }}>
+                              ⚠️ {t("Contient des allergènes", "Contains allergens")}
+                            </span>
+                          )}
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-                        <div>
-                          {prod.promoPrice ? (
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--color-terracotta)' }}>{prod.promoPrice.toFixed(2)} $</span>
-                              <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', color: '#a08a7c' }}>{prod.price.toFixed(2)} $</span>
-                            </div>
-                          ) : (
-                            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{prod.price.toFixed(2)} $</span>
+                          {!hasAllergen && allergensAvoid.length > 0 && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '12px',
+                              right: '12px',
+                              backgroundColor: 'var(--color-forest)',
+                              color: 'white',
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.7rem',
+                              fontWeight: 'bold',
+                              borderRadius: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                            }}>
+                              ✨ {t("Sûr pour vous", "Safe")}
+                            </span>
                           )}
                         </div>
 
-                        {/* Order Options button */}
-                        <button 
-                          onClick={() => {
-                            if (prod.options && prod.options.length > 0) {
-                              setActiveProduct(prod);
-                              setSelectedOptions({});
-                            } else {
-                              addToCart(prod, 1);
-                              // Trigger alert
-                              const event = new CustomEvent('toast-alert', {
-                                detail: { 
-                                  msgFr: `${prod.nameFr} ajouté au panier !`,
-                                  msgEn: `${prod.nameEn} added to cart!`
+                        <h3 style={{ fontSize: '1.2rem', marginTop: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {t(prod.nameFr, prod.nameEn)}
+                        </h3>
+                        
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', height: '50px', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.4rem' }}>
+                          {t(prod.descriptionFr, prod.descriptionEn)}
+                        </p>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
+                          <div>
+                            {prod.promoPrice ? (
+                              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--color-terracotta)' }}>{prod.promoPrice.toFixed(2)} $</span>
+                                <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', color: '#a08a7c' }}>{prod.price.toFixed(2)} $</span>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{prod.price.toFixed(2)} $</span>
+                            )}
+                          </div>
+
+                          {/* Order Options / Add button with Allergen Guard */}
+                          {hasAllergen ? (
+                            <button 
+                              disabled
+                              className="btn"
+                              style={{ 
+                                padding: '0.5rem 1rem', 
+                                fontSize: '0.8rem', 
+                                borderRadius: '12px',
+                                backgroundColor: 'rgba(128, 20, 20, 0.1)',
+                                color: 'var(--color-bordeaux)',
+                                border: 'none',
+                                cursor: 'not-allowed',
+                                fontWeight: '600'
+                              }}
+                            >
+                              {t("Non compatible", "Incompatible")}
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => {
+                                if (prod.options && prod.options.length > 0) {
+                                  setActiveProduct(prod);
+                                  setSelectedOptions({});
+                                } else {
+                                  addToCart(prod, 1);
+                                  const event = new CustomEvent('toast-alert', {
+                                    detail: { 
+                                      msgFr: `${prod.nameFr} ajouté au panier !`,
+                                      msgEn: `${prod.nameEn} added to cart!`
+                                    }
+                                  });
+                                  window.dispatchEvent(event);
                                 }
-                              });
-                              window.dispatchEvent(event);
-                            }
-                          }}
-                          className="btn btn-primary"
-                          style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', borderRadius: '12px' }}
-                        >
-                          {prod.options && prod.options.length > 0 ? t("Personnaliser", "Customize") : t("Ajouter", "Add")}
-                        </button>
+                              }}
+                              className="btn btn-primary"
+                              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', borderRadius: '12px' }}
+                            >
+                              {prod.options && prod.options.length > 0 ? t("Personnaliser", "Customize") : t("Ajouter", "Add")}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
