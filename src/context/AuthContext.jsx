@@ -27,6 +27,19 @@ export const AuthProvider = ({ children }) => {
       setUserProfile(null);
       return;
     }
+    if (!db) {
+      // Offline/Mock fallback profile
+      setUserProfile({
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || 'Client Démo',
+        role: user.email === 'admin@lesmerveillesdoli.com' ? 'admin' : (user.email === 'kitchen@lesmerveillesdoli.com' ? 'kitchen' : 'customer'),
+        createdAt: new Date().toISOString(),
+        loyaltyPoints: 120,
+        phone: user.phoneNumber || ''
+      });
+      return;
+    }
     try {
       const userDocRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userDocRef);
@@ -52,6 +65,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
@@ -59,6 +76,9 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUserProfile(null);
       }
+      setLoading(false);
+    }, (error) => {
+      console.warn("Auth observer warning:", error);
       setLoading(false);
     });
 
@@ -69,6 +89,20 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, displayName) => {
     setLoading(true);
     try {
+      if (!auth) {
+        const mockUser = { uid: 'mock-uid-' + Date.now(), email, displayName };
+        setCurrentUser(mockUser);
+        setUserProfile({
+          uid: mockUser.uid,
+          email: mockUser.email,
+          displayName: mockUser.displayName,
+          role: 'customer',
+          createdAt: new Date().toISOString(),
+          loyaltyPoints: 100,
+          phone: ''
+        });
+        return mockUser;
+      }
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await updateProfile(user, { displayName });
@@ -82,7 +116,9 @@ export const AuthProvider = ({ children }) => {
         loyaltyPoints: 0,
         phone: ''
       };
-      await setDoc(doc(db, 'users', user.uid), newProfile);
+      if (db) {
+        await setDoc(doc(db, 'users', user.uid), newProfile);
+      }
       setUserProfile(newProfile);
       return user;
     } finally {
@@ -91,19 +127,57 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Email Login
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const login = async (email, password) => {
+    if (!auth) {
+      let role = 'customer';
+      let displayName = 'Client Démo';
+      if (email === 'admin@lesmerveillesdoli.com') {
+        role = 'admin';
+        displayName = 'Administrateur';
+      } else if (email === 'kitchen@lesmerveillesdoli.com') {
+        role = 'kitchen';
+        displayName = 'Chef Cuisine';
+      }
+      const mockUser = { uid: 'mock-uid-' + Date.now(), email, displayName };
+      setCurrentUser(mockUser);
+      setUserProfile({
+        uid: mockUser.uid,
+        email,
+        displayName,
+        role,
+        createdAt: new Date().toISOString(),
+        loyaltyPoints: 120,
+        phone: ''
+      });
+      return mockUser;
+    }
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
   };
 
   // Google Login
   const loginWithGoogle = async () => {
+    if (!auth) {
+      const mockUser = { uid: 'mock-google-uid', email: 'google-user@gmail.com', displayName: 'Google User' };
+      setCurrentUser(mockUser);
+      setUserProfile({
+        uid: mockUser.uid,
+        email: mockUser.email,
+        displayName: mockUser.displayName,
+        role: 'customer',
+        createdAt: new Date().toISOString(),
+        loyaltyPoints: 50,
+        phone: ''
+      });
+      return mockUser;
+    }
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   };
 
   // Phone Authentication Setup (Invisible reCAPTCHA verifier helper)
   const setupRecaptcha = (containerId) => {
-    if (!auth) return;
+    if (!auth) return { verify: () => {} };
     return new RecaptchaVerifier(auth, containerId, {
       'size': 'invisible',
       'callback': (response) => {
@@ -114,11 +188,30 @@ export const AuthProvider = ({ children }) => {
 
   // Phone Login Request
   const loginWithPhone = async (phoneNumber, appVerifier) => {
+    if (!auth) {
+      const mockUser = { uid: 'mock-phone-uid', phoneNumber };
+      setCurrentUser(mockUser);
+      setUserProfile({
+        uid: mockUser.uid,
+        email: '',
+        displayName: 'Phone User',
+        role: 'customer',
+        createdAt: new Date().toISOString(),
+        loyaltyPoints: 0,
+        phone: phoneNumber
+      });
+      return { confirm: async () => ({ user: mockUser }) };
+    }
     return signInWithPhoneNumber(auth, phoneNumber, appVerifier);
   };
 
   // Logout
-  const logout = () => {
+  const logout = async () => {
+    if (!auth) {
+      setCurrentUser(null);
+      setUserProfile(null);
+      return;
+    }
     return signOut(auth);
   };
 

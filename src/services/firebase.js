@@ -12,10 +12,27 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+// Check if we have a valid configuration (must at least have apiKey and projectId)
+const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
+
+let app = null;
+let auth = null;
+let db = null;
+let googleProvider = null;
+
+if (hasConfig) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    googleProvider = new GoogleAuthProvider();
+    console.log("Firebase initialized successfully.");
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+} else {
+  console.warn("Firebase environment variables are missing. App is running in Mock Mode.");
+}
 
 export { app, auth, db, googleProvider };
+
