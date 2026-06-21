@@ -3,9 +3,8 @@ import { useApp } from '../context/AppContext';
 import { Gift, Mail, Calendar, DollarSign, Send, CheckCircle } from 'lucide-react';
 
 const GiftCards = () => {
-  const { language, t } = () => useApp();
-  const appTrans = useApp();
-  const translate = (f, e) => appTrans?.t ? appTrans.t(f, e) : f;
+  const { language, t } = useApp();
+  const translate = (f, e) => t(f, e);
   
   const [selectedTheme, setSelectedTheme] = useState('birthday'); // 'birthday'|'thankyou'|'love'|'corporate'
   const [amount, setAmount] = useState(50);
