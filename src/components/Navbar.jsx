@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useCart } from '../context/CartContext';
-import { Menu, X, ShoppingBag, Globe, EyeOff, Eye, Palette } from 'lucide-react';
+import { Menu, X, ShoppingBag, Globe, EyeOff, Eye, Palette, Volume2, VolumeX } from 'lucide-react';
 import MagneticButton from './MagneticButton';
 
 const Navbar = () => {
-  const { language, toggleLanguage, animationsEnabled, setAnimationsEnabled, siteSettings, theme, setTheme, t } = useApp();
+  const { language, toggleLanguage, animationsEnabled, setAnimationsEnabled, siteSettings, theme, setTheme, soundEnabled, setSoundEnabled, playTick, t } = useApp();
   const { getTotalCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredLinkImage, setHoveredLinkImage] = useState('');
@@ -67,6 +67,64 @@ const Navbar = () => {
             <span className="desktop-only">{animationsEnabled ? 'FX On' : 'FX Off'}</span>
           </button>
 
+          {/* Toggle Sound */}
+          <button 
+            onClick={() => {
+              const nextVal = !soundEnabled;
+              setSoundEnabled(nextVal);
+              if (nextVal) {
+                setTimeout(() => {
+                  try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                  } catch(err) {}
+                }, 50);
+              }
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: isOpen ? 'var(--color-ivory)' : 'var(--text-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.8rem',
+              fontWeight: '500'
+            }}
+            title={soundEnabled ? t("Désactiver le son", "Mute sound") : t("Activer le son", "Unmute sound")}
+          >
+            {soundEnabled ? (
+              <>
+                <Volume2 size={18} style={{ color: 'var(--color-terracotta)' }} />
+                <span className="sound-wave-anim" style={{ display: 'inline-flex', gap: '2px', alignItems: 'center' }}>
+                  <span style={{ width: '2px', height: '10px', backgroundColor: 'var(--color-terracotta)', animation: 'wave 1s ease-in-out infinite alternate' }} />
+                  <span style={{ width: '2px', height: '14px', backgroundColor: 'var(--color-terracotta)', animation: 'wave 1.2s ease-in-out infinite alternate 0.2s' }} />
+                  <span style={{ width: '2px', height: '8px', backgroundColor: 'var(--color-terracotta)', animation: 'wave 0.8s ease-in-out infinite alternate 0.4s' }} />
+                </span>
+              </>
+            ) : (
+              <>
+                <VolumeX size={18} />
+                <span className="desktop-only">{t("Sourdine", "Mute")}</span>
+              </>
+            )}
+            <style>{`
+              @keyframes wave {
+                0% { transform: scaleY(0.3); }
+                100% { transform: scaleY(1); }
+              }
+            `}</style>
+          </button>
+
           {/* Toggle Language */}
           <button 
             onClick={toggleLanguage}
@@ -123,7 +181,10 @@ const Navbar = () => {
           {/* Hamburger Menu Toggle */}
           <button 
             className="menu-toggle-btn"
-            onClick={handleMenuToggle}
+            onClick={() => {
+              playTick();
+              handleMenuToggle();
+            }}
             style={{
               background: 'var(--color-terracotta)',
               border: 'none',

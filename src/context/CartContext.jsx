@@ -6,7 +6,7 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const { siteSettings } = useApp();
+  const { siteSettings, playCartSound } = useApp();
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('oli_cart');
     return saved ? JSON.parse(saved) : [];
@@ -49,6 +49,7 @@ export const CartProvider = ({ children }) => {
       detail: { productId: product.id, count: quantity } 
     });
     window.dispatchEvent(event);
+    playCartSound();
   };
 
   // Remove Item

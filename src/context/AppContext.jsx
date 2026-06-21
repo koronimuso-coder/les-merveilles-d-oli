@@ -74,6 +74,68 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   const [theme, setTheme] = useState('ivory'); // Theme states: 'ivory', 'dark', 'sunset'
+  const [soundEnabled, setSoundEnabled] = useState(false);
+
+  // Background Audio Loop
+  useEffect(() => {
+    let audio = null;
+    if (soundEnabled) {
+      audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3");
+      audio.loop = true;
+      audio.volume = 0.12; // soft background volume
+      audio.play().catch(e => console.warn("Audio play prevented:", e));
+    }
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+      }
+    };
+  }, [soundEnabled]);
+
+  // Web Audio Synth for micro-interactions
+  const playTick = () => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(580, ctx.currentTime); // wooden clicking sound
+      osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.07);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.07);
+    } catch (e) {
+      console.warn("Audio context failed:", e);
+    }
+  };
+
+  const playCartSound = () => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const playTone = (freq, time, dur) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.05, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + dur);
+      };
+      playTone(523.25, ctx.currentTime, 0.12); // C5 chime
+      playTone(659.25, ctx.currentTime + 0.08, 0.18); // E5 chime
+    } catch (e) {
+      console.warn("Audio context failed:", e);
+    }
+  };
 
   useEffect(() => {
     document.body.classList.remove('theme-ivory', 'theme-dark', 'theme-sunset');
@@ -103,6 +165,10 @@ export const AppProvider = ({ children }) => {
       setSiteSettings,
       theme,
       setTheme,
+      soundEnabled,
+      setSoundEnabled,
+      playTick,
+      playCartSound,
       t
     }}>
       {children}

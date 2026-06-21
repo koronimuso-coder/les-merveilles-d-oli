@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useCart } from '../context/CartContext';
@@ -23,8 +23,254 @@ import {
   Play
 } from 'lucide-react';
 
+const SpiceGrinder = ({ language, t, playTick }) => {
+  const canvasRef = useRef(null);
+  const [activeSecret, setActiveSecret] = useState(null);
+  const [grindStatus, setGrindStatus] = useState({
+    penja: 0,
+    djansang: 0,
+    pebe: 0
+  });
+
+  const secrets = {
+    penja: {
+      titleFr: "Poivre Blanc de Penja ⚪",
+      titleEn: "White Penja Pepper ⚪",
+      descFr: "Cultivé sur des terres volcaniques au Cameroun. Secret : Il donne au Ndolé son piquant délicat et son parfum boisé inimitable.",
+      descEn: "Grown in volcanic soils of Cameroon. Secret: It gives Ndole its delicate heat and inimitable woody aroma."
+    },
+    djansang: {
+      titleFr: "Graines de Djansang 🟤",
+      titleEn: "Djansang Seeds 🟤",
+      descFr: "Graines d'arbres forestiers torréfiées. Secret : Moulues, elles épaississent naturellement la sauce et apportent une note de noisette grillée.",
+      descEn: "Roasted wild forest seeds. Secret: Ground up, they naturally thicken the sauce and bring a roasted hazelnut note."
+    },
+    pebe: {
+      titleFr: "Pébé (Fausse Muscade) 🟡",
+      titleEn: "Pebe (African Nutmeg) 🟡",
+      descFr: "Épice aromatique sauvage. Secret : Libère un arôme résineux et citronné indispensable pour parfumer le bouillon du Mafé.",
+      descEn: "Wild aromatic nutmeg. Secret: Releases a resinous, citrusy aroma essential to flavor the Mafe stew."
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationId;
+
+    let mouse = { x: 200, y: 200, lastX: 200, lastY: 200 };
+    let particles = [];
+    
+    let spices = [
+      { id: 'penja', nameFr: 'Penja', nameEn: 'Penja', x: 150, y: 170, r: 24, color: '#EBEBEB', textCol: '#2C1A11', hp: 5 },
+      { id: 'djansang', nameFr: 'Djansang', nameEn: 'Djansang', x: 250, y: 190, r: 24, color: '#A06D48', textCol: '#FAF6F0', hp: 5 },
+      { id: 'pebe', nameFr: 'Pébé', nameEn: 'Pebe', x: 200, y: 240, r: 24, color: '#CFA751', textCol: '#2C1A11', hp: 5 }
+    ];
+
+    const mortarCenter = { x: 200, y: 200 };
+    const mortarRadius = 130;
+
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.lastX = mouse.x;
+      mouse.lastY = mouse.y;
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+
+    const spawnParticles = (x, y, color) => {
+      for (let i = 0; i < 6; i++) {
+        particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 5,
+          vy: (Math.random() - 0.5) * 5 - 1.5,
+          alpha: 1,
+          size: Math.random() * 4 + 2,
+          decay: Math.random() * 0.04 + 0.02,
+          color
+        });
+      }
+    };
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.beginPath();
+      ctx.arc(mortarCenter.x, mortarCenter.y, mortarRadius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(44, 26, 17, 0.06)';
+      ctx.fill();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = 'var(--color-cacao)';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(mortarCenter.x, mortarCenter.y, mortarRadius - 10, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(44, 26, 17, 0.04)';
+      ctx.fill();
+
+      spices.forEach(sp => {
+        if (sp.hp <= 0) return;
+
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+        ctx.fillStyle = sp.color;
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(44, 26, 17, 0.15)';
+        ctx.stroke();
+
+        ctx.fillStyle = sp.textCol;
+        ctx.font = 'bold 9.5px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(language === 'fr' ? sp.nameFr : sp.nameEn, sp.x, sp.y);
+
+        const dist = Math.hypot(mouse.x - sp.x, mouse.y - sp.y);
+        const speed = Math.hypot(mouse.x - mouse.lastX, mouse.y - mouse.lastY);
+
+        if (dist < sp.r + 12 && speed > 3) {
+          sp.hp -= 0.08;
+          spawnParticles(sp.x, sp.y, sp.color);
+          
+          if (Math.random() < 0.18) {
+            playTick();
+          }
+
+          const angle = Math.atan2(sp.y - mortarCenter.y, sp.x - mortarCenter.x);
+          sp.x += Math.cos(angle) * 3;
+          sp.y += Math.sin(angle) * 3;
+
+          if (sp.hp <= 0) {
+            playTick();
+            setGrindStatus(prev => ({ ...prev, [sp.id]: 100 }));
+            setActiveSecret(sp.id);
+          }
+        }
+
+        const distFromCenter = Math.hypot(sp.x - mortarCenter.x, sp.y - mortarCenter.y);
+        if (distFromCenter > mortarRadius - sp.r - 10) {
+          const angle = Math.atan2(sp.y - mortarCenter.y, sp.x - mortarCenter.x);
+          sp.x = mortarCenter.x + Math.cos(angle) * (mortarRadius - sp.r - 10);
+          sp.y = mortarCenter.y + Math.sin(angle) * (mortarRadius - sp.r - 10);
+        }
+      });
+
+      particles.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.08;
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+          particles.splice(idx, 1);
+          return;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = 'var(--color-terracotta)';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 14, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(200,92,50,0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [language, playTick]);
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: '3rem',
+      alignItems: 'center',
+      backgroundColor: 'var(--bg-secondary)',
+      borderRadius: '32px',
+      padding: '3rem',
+      boxShadow: '0 15px 40px rgba(44, 26, 17, 0.03)',
+      border: '1px solid rgba(44, 26, 17, 0.05)',
+      marginTop: '3rem'
+    }}>
+      <div>
+        <span style={{ color: 'var(--color-terracotta)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>
+          {t("Atelier Culinaire", "Culinary Workshop")}
+        </span>
+        <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginTop: '0.5rem' }}>
+          {t("L'Atelier Secret des Épices", "The Secret Spice Atelier")}
+        </h3>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '0.8rem', fontSize: '0.9rem', lineHeight: '1.6' }}>
+          {t(
+            "Le mortier traditionnel en bois est le cœur battant de la cuisine africaine. En écrasant nos épices sauvages à la main, nous libérons les huiles aromatiques qui confèrent à nos plats leur goût unique.",
+            "The traditional wooden mortar is the heartbeat of African culinary arts. By grinding our wild forest spices by hand, we release the aromatic oils that give our signature dishes their unique depth."
+          )}
+        </p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-terracotta)', fontWeight: 'bold', marginTop: '1rem' }}>
+          💡 {t("Déplacez votre souris rapidement dans le mortier pour pilonner le Poivre de Penja, le Djansang et le Pébé !", "Move your cursor rapidly inside the mortar to pound Penja Pepper, Djansang, and Pebe!")}
+        </p>
+
+        {activeSecret && secrets[activeSecret] && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.2rem',
+            borderRadius: '16px',
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid rgba(200,92,50,0.15)',
+            boxShadow: '0 5px 15px rgba(0,0,0,0.02)',
+            animation: 'fade-in 0.4s ease'
+          }}>
+            <h4 style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--color-terracotta)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              ✨ {t(secrets[activeSecret].titleFr, secrets[activeSecret].titleEn)}
+            </h4>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.4rem', lineHeight: '1.5' }}>
+              {t(secrets[activeSecret].descFr, secrets[activeSecret].descEn)}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <canvas 
+          ref={canvasRef} 
+          width="400" 
+          height="400" 
+          style={{ 
+            maxWidth: '100%', 
+            borderRadius: '50%', 
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid rgba(44,26,11,0.06)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
+          }} 
+        />
+      </div>
+    </div>
+  );
+};
+
 const Home = () => {
-  const { language, t, siteSettings, animationsEnabled, setAnimationsEnabled } = useApp();
+  const { language, t, siteSettings, animationsEnabled, setAnimationsEnabled, playTick } = useApp();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   
@@ -624,6 +870,9 @@ const Home = () => {
                 </div>
               ))}
             </div>
+
+            {/* Atelier Secret des Épices (Interactive Mortar Canvas) */}
+            <SpiceGrinder language={language} t={t} playTick={playTick} />
           </div>
         </section>
 

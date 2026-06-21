@@ -22,6 +22,7 @@ const Catering = () => {
   const [calcGuests, setCalcGuests] = useState(30);
   const [calcService, setCalcService] = useState('dropoff'); // 'dropoff' | 'staffed'
   const [selectedBuilderItems, setSelectedBuilderItems] = useState(['ndole', 'alloco', 'bissap']);
+  const [selectedVibe, setSelectedVibe] = useState('kente'); // Table Decor visual theme curator
 
   const CATERING_ITEMS = [
     { id: 'pastels', nameFr: 'Pastels de Poisson', nameEn: 'Fish Pastels', category: 'entrees', unitPrice: 2.00, ratio: 2 }, // 2 per person
@@ -99,6 +100,7 @@ const Catering = () => {
       guestsCount: parseInt(eventGuests) || 0,
       menuPreferences: Object.keys(menuPrefs).filter(k => menuPrefs[k]),
       additionalServices: Object.keys(servicePrefs).filter(k => servicePrefs[k]),
+      decorTheme: selectedVibe,
       budgetRange: quoteBudgetRange,
       contact: {
         name: contactName,
@@ -343,6 +345,105 @@ const Catering = () => {
                 {t("Convertir en Devis", "Create Quote Request")}
               </button>
             </div>
+          </div>
+        </section>
+
+        {/* VIBE SELECTOR - CURATEUR VISUEL DE DÉCORATION */}
+        <section style={{
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '32px',
+          padding: '2.5rem',
+          border: '1px solid rgba(44, 26, 17, 0.05)',
+          marginBottom: '5rem',
+          transition: 'all 0.3s ease'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <span style={{ color: 'var(--color-terracotta)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>
+              {t("Aesthetic & Ambiance", "Aesthetic & Theme")}
+            </span>
+            <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-serif)', marginTop: '0.5rem' }}>
+              {t("Curateur de Style de Table", "Catering Table Decor Curator")}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0.5rem auto 0 auto', fontSize: '0.9rem' }}>
+              {t(
+                "Sélectionnez le thème visuel de votre buffet. Nous adaptons le nappage, la vaisselle et la décoration florale à vos préférences.",
+                "Choose the visual theme for your event. We adapt the table linens, dinnerware, and floral centerpieces to match."
+              )}
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem' }}>
+            {[
+              {
+                id: 'kente',
+                titleFr: "Kente Royal 👑",
+                titleEn: "Royal Kente 👑",
+                descFr: "Inspiré par les tissus géométriques ghanéens. Nappages chauds orange/safran, argenterie dorée et vaisselle en terre cuite brute pour une table de prestige.",
+                descEn: "Inspired by Ghanaian geometric patterns. Warm orange/saffron runners, golden cutlery, and raw clay dinnerware for a prestigious royal table.",
+                color: 'var(--color-safran)',
+                bg: 'rgba(244,196,48,0.06)',
+                borderCol: 'var(--color-safran)',
+                image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'
+              },
+              {
+                id: 'safari',
+                titleFr: "Safari Chic Moderne 🌿",
+                titleEn: "Modern Safari Chic 🌿",
+                descFr: "Harmonie d'ivoire et d'olivier. Lin naturel brut, feuillages exotiques d'eucalyptus, couverts en cuivre brossé et bougies blanches minimalistes.",
+                descEn: "Harmony of ivory and olive. Raw natural linen, eucalyptus and palm leaves, brushed copper details, and minimalist white candles.",
+                color: 'var(--color-forest)',
+                bg: 'rgba(30,47,35,0.06)',
+                borderCol: 'var(--color-forest)',
+                image: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=400&q=80'
+              },
+              {
+                id: 'terracotta',
+                titleFr: "Nuit Terracotta 🏺",
+                titleEn: "Terracotta Night 🏺",
+                descFr: "Mode sombre luxueux. Nappages charbon profond, vases en céramique d'argile rouge cuite, chandeliers en laiton et vaisselle émaillée sombre.",
+                descEn: "Luxury dark mode. Deep charcoal linens, clay pots in baked red terracotta, brass candleholders, and dark glazed stoneware.",
+                color: 'var(--color-terracotta)',
+                bg: 'rgba(200,92,50,0.06)',
+                borderCol: 'var(--color-terracotta)',
+                image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?auto=format&fit=crop&w=400&q=80'
+              }
+            ].map(vibe => {
+              const isActive = selectedVibe === vibe.id;
+              return (
+                <div 
+                  key={vibe.id}
+                  onClick={() => setSelectedVibe(vibe.id)}
+                  style={{
+                    backgroundColor: isActive ? vibe.bg : 'var(--bg-primary)',
+                    border: `3px solid ${isActive ? vibe.borderCol : 'rgba(44,26,11,0.06)'}`,
+                    borderRadius: '24px',
+                    padding: '1.5rem',
+                    cursor: 'pointer',
+                    transform: isActive ? 'translateY(-5px)' : 'none',
+                    boxShadow: isActive ? '0 10px 25px rgba(0,0,0,0.04)' : 'none',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                  }}
+                >
+                  <img 
+                    src={vibe.image} 
+                    alt={vibe.titleFr} 
+                    style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '16px' }}
+                  />
+                  <div>
+                    <h4 style={{ fontWeight: 'bold', fontSize: '1.1rem', color: isActive ? vibe.color : 'var(--text-primary)', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{t(vibe.titleFr, vibe.titleEn)}</span>
+                      {isActive && <span style={{ fontSize: '0.75rem', color: vibe.color }}>★ {t("Choisi", "Selected")}</span>}
+                    </h4>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
+                      {t(vibe.descFr, vibe.descEn)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
